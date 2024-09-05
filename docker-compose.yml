@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: luka
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: vacation_tracker_db
+    ports:
+      - "5432:5432"
+
+  vacationimport:
+    build: ./vacationimport
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/vacation_tracker_db
+      SPRING_DATASOURCE_USERNAME: luka
+      SPRING_DATASOURCE_PASSWORD: 123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+      SERVER.ERROR.INCLUDE-MESSAGE: always
+      API_KEY: X-API-Key
+      API_KEY_VALUE: api_key_value
+      DATE_PATTERN: EEEE, MMMM d, yyyy
+      ALGORITHM: HmacSHA512
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  vacationsearch:
+    build: ./vacationsearch
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/vacation_tracker_db
+      SPRING_DATASOURCE_USERNAME: luka
+      SPRING_DATASOURCE_PASSWORD: 123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+      SERVER.ERROR.INCLUDE-MESSAGE: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
